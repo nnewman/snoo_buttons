@@ -1,0 +1,3 @@
+python-dotenv
+gpiozero
+git+https://github.com/nnewman/pysnoo@develop#egg=pysnoo

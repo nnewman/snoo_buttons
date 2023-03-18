@@ -1,0 +1,5 @@
+black
+Mock.GPIO
+pigpio
+pylint
+pytest

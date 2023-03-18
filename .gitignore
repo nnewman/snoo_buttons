@@ -1,0 +1,7 @@
+**/venv
+**/__pycache__
+.env
+.snoo_credentials.json
+.snoo_token.json
+.snoo_token.test.json
+.snoo_credentials.test.json
