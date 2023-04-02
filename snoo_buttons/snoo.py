@@ -14,6 +14,7 @@ from pysnoo import ActivityState, SessionLevel, Snoo, SnooAuthSession, SnooPubNu
 from .constants import (
     CREDENTIALS_FILE,
     FIVE_MINUTES_IN_SECONDS,
+    HOLD_ON_START,
     LOCK_LED,
     TOKEN_FILE,
     TOKEN_UPDATE_MUTEX,
@@ -135,10 +136,16 @@ async def toggle():
         if last_activity_state.state_machine.state == SessionLevel.ONLINE:
             await pubnub.publish_start()
             logger.info("Started")
+            if HOLD_ON_START:
+                await pubnub.publish_goto_state(SessionLevel.BASELINE, True)
+                logger.info("Level lock toggled")
+                set_led(LOCK_LED, True)
+            else:
+                set_led(LOCK_LED, False)  # Not locked if just turned on!
         else:
             await pubnub.publish_goto_state(SessionLevel.ONLINE)
+            set_led(LOCK_LED, False)  # Can't be locked if off!
             logger.info("Stopped")
-        set_led(LOCK_LED, get_lock_status(last_activity_state))
 
 
 async def up_level():

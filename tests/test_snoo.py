@@ -15,7 +15,7 @@ from snoo_buttons.snoo import (
     lock,
     get_lock_status,
     update_lock_led,
-    NoDevicesException
+    NoDevicesException,
 )
 from .fakes import (
     FakeLED,
@@ -102,6 +102,30 @@ def test_toggle_from_online():
             assert pubnub.last_message["command"] == "start_snoo"
 
     asyncio.run(inner())
+
+
+@patch("snoo_buttons.snoo.Snoo", FakeSnoo.generate(True))
+@patch("snoo_buttons.snoo.SnooAuthSession", FakeSnooAuthSession.generate(True))
+@patch(
+    "snoo_buttons.snoo.SnooPubNub",
+    FakePubnub.generate_with_history(
+        generate_activity(generate_state_machine(SessionLevel.ONLINE))
+    ),
+)
+@patch("snoo_buttons.snoo.HOLD_ON_START", True)
+def test_toggle_from_online_lock_on_start():
+    async def inner():
+        async with get_pubnub() as (pubnub, last_activity):
+            assert last_activity.state_machine.state == SessionLevel.ONLINE
+            await toggle()
+            assert len(pubnub.messages) == 2
+            second_last_message, last_message = pubnub.messages
+            assert second_last_message["command"] == "start_snoo"
+            assert last_message["hold"] == "on"
+
+    with patch("gpiozero.LED", FakeLED) as led:
+        asyncio.run(inner())
+        assert led.is_on
 
 
 @patch("snoo_buttons.snoo.Snoo", FakeSnoo.generate(True))

@@ -107,6 +107,10 @@ class FakePubnub:
         self.started = False
 
     @property
+    def messages(self):
+        return self._messages
+
+    @property
     def last_message(self):
         if not self._messages:
             return None

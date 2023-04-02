@@ -23,6 +23,7 @@ TOKEN_FILE = os.path.join(WORKDIR, _config["TOKEN_FILENAME"])
 HUNDRED_KB_IN_BYTES = 1024 * 100
 FIVE_MINUTES_IN_SECONDS = 300
 TOKEN_UPDATE_MUTEX = asyncio.Lock()
+HOLD_ON_START = bool(_config.get("HOLD_ON_START")) or False
 
 
 # Pinout config
