@@ -8,6 +8,7 @@ import os
 import sys
 
 from snoo_buttons.constants import (
+    Commands,
     DOWN_BUTTON,
     HUNDRED_KB_IN_BYTES,
     LOCK_BUTTON,
@@ -15,8 +16,11 @@ from snoo_buttons.constants import (
     TOGGLE_BUTTON,
     WORKDIR,
 )
-from snoo_buttons.snoo import down_level, lock, periodic_lock_state_updater, toggle, up_level
-from snoo_buttons.utils import callback, LoggerWriter
+from snoo_buttons.snoo import (
+    push_queue_command_callable,
+    worker
+)
+from snoo_buttons.utils import LoggerWriter
 
 
 logger = logging.getLogger("snoo_buttons")
@@ -32,15 +36,15 @@ sys.stdout = LoggerWriter(logger.info)
 sys.stderr = LoggerWriter(logger.error)
 
 
-loop = asyncio.get_event_loop()
+loop = asyncio.new_event_loop()
+asyncio.set_event_loop(loop)
+loop.create_task(worker())
 
 
-loop.create_task(periodic_lock_state_updater())
+UP_BUTTON.when_pressed = push_queue_command_callable(Commands.UP_LEVEL)
+DOWN_BUTTON.when_pressed = push_queue_command_callable(Commands.DOWN_LEVEL)
+LOCK_BUTTON.when_pressed = push_queue_command_callable(Commands.LOCK)
+TOGGLE_BUTTON.when_pressed = push_queue_command_callable(Commands.TOGGLE)
 
-
-UP_BUTTON.when_pressed = callback(loop, up_level)
-DOWN_BUTTON.when_pressed = callback(loop, down_level)
-LOCK_BUTTON.when_pressed = callback(loop, lock)
-TOGGLE_BUTTON.when_pressed = callback(loop, toggle)
 
 loop.run_forever()

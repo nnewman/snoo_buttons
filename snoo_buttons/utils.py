@@ -1,8 +1,6 @@
 """
 Library common utility functions
 """
-from typing import Awaitable
-
 from gpiozero import LED
 
 
@@ -18,22 +16,6 @@ def set_led(led: LED, state: bool):
         led.on()
     else:
         led.off()
-
-
-def callback(loop, func: Awaitable):
-    """
-    Returns a callable that will run a given async callback
-
-    Args:
-        loop: Current event loop
-        func (Awaitable): Coroutine to run on the loop
-    """
-
-    def inner():
-        nonlocal loop, func
-        loop.create_task(func())
-
-    return inner
 
 
 # pylint: disable=line-too-long
